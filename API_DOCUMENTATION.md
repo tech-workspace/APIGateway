@@ -955,7 +955,7 @@ Content-Type: application/json
 ```
 
 **Field Validation:**
-- `name`: Required, string, 2-50 characters, unique
+- `name`: Required, string, max 30 characters, unique
 - `description`: Optional, string, max 200 characters
 - `color`: Optional, valid hex color code (e.g., #3B82F6)
 - `icon`: Optional, string, max 10 characters

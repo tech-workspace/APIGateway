@@ -3,12 +3,10 @@ const Joi = require('joi');
 // Validation schema for creating a new category
 const createCategorySchema = Joi.object({
   name: Joi.string()
-    .min(2)
-    .max(50)
+    .max(30)
     .required()
     .messages({
-      'string.min': 'Category name must be at least 2 characters long',
-      'string.max': 'Category name cannot exceed 50 characters',
+      'string.max': 'Category name cannot exceed 30 characters',
       'any.required': 'Category name is required'
     }),
   description: Joi.string()
@@ -48,12 +46,10 @@ const createCategorySchema = Joi.object({
 // Validation schema for updating a category
 const updateCategorySchema = Joi.object({
   name: Joi.string()
-    .min(2)
-    .max(50)
+    .max(30)
     .optional()
     .messages({
-      'string.min': 'Category name must be at least 2 characters long',
-      'string.max': 'Category name cannot exceed 50 characters'
+      'string.max': 'Category name cannot exceed 30 characters'
     }),
   description: Joi.string()
     .max(200)
@@ -110,12 +106,10 @@ const categoryQuerySchema = Joi.object({
       'number.max': 'Limit cannot exceed 100'
     }),
   search: Joi.string()
-    .min(2)
-    .max(50)
+    .max(30)
     .optional()
     .messages({
-      'string.min': 'Search term must be at least 2 characters long',
-      'string.max': 'Search term cannot exceed 50 characters'
+      'string.max': 'Search term cannot exceed 30 characters'
     }),
   isActive: Joi.boolean()
     .optional(),
