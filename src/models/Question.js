@@ -16,9 +16,9 @@ const questionSchema = new mongoose.Schema({
     maxlength: [5000, 'Question answer cannot exceed 5000 characters']
   },
   category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: [true, 'Question category is required']
+    type: String,
+    required: [true, 'Question category is required'],
+    trim: true
   },
   level: {
     type: String,

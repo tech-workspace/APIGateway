@@ -1392,12 +1392,12 @@ Content-Type: application/json
 {
   "title": "What is the difference between let, const, and var in JavaScript?",
   "answer": "In JavaScript, let, const, and var are different ways to declare variables...",
-  "category": "65c1234567890abcdef12345",
+  "category": "JavaScript",
   "level": "Beginner"
 }
 ```
 
-**Note:** The `category` field now expects a MongoDB ObjectId instead of a string.
+**Note:** The `category` field now accepts any string value (e.g., "قران", "JavaScript", "Machine Learning").
 
 ---
 
