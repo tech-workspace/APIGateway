@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authRoutes = require('./auth');
 const questionRoutes = require('./questions');
+const categoryRoutes = require('./categories');
 
 // Health check endpoint
 router.get('/health', (req, res) => {
@@ -16,6 +17,7 @@ router.get('/health', (req, res) => {
 // API versioning
 router.use('/v1/auth', authRoutes);
 router.use('/v1/questions', questionRoutes);
+router.use('/v1/categories', categoryRoutes);
 
 // Root endpoint
 router.get('/', (req, res) => {
@@ -26,6 +28,7 @@ router.get('/', (req, res) => {
     endpoints: {
       auth: '/v1/auth',
       questions: '/v1/questions',
+      categories: '/v1/categories',
       health: '/health'
     },
     documentation: 'API documentation coming soon'

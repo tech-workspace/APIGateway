@@ -21,10 +21,10 @@ const createQuestionSchema = Joi.object({
       'any.required': 'Question answer is required'
     }),
   category: Joi.string()
-    .valid('JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript', 'React', 'Vue', 'Angular', 'Node.js', 'Database', 'DevOps', 'System Design', 'Algorithms', 'Data Structures', 'Other')
+    .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
-      'any.only': 'Please select a valid category',
+      'string.pattern.base': 'Category must be a valid MongoDB ObjectId',
       'any.required': 'Question category is required'
     }),
   level: Joi.string()
@@ -99,10 +99,10 @@ const questionQuerySchema = Joi.object({
       'string.max': 'Search term cannot exceed 100 characters'
     }),
   category: Joi.string()
-    .valid('JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript', 'React', 'Vue', 'Angular', 'Node.js', 'Database', 'DevOps', 'System Design', 'Algorithms', 'Data Structures', 'Other')
+    .pattern(/^[0-9a-fA-F]{24}$/)
     .optional()
     .messages({
-      'any.only': 'Please select a valid category'
+      'string.pattern.base': 'Category must be a valid MongoDB ObjectId'
     }),
   level: Joi.string()
     .valid('Beginner', 'Intermediate', 'Advanced', 'Expert')

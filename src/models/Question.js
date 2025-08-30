@@ -16,13 +16,9 @@ const questionSchema = new mongoose.Schema({
     maxlength: [5000, 'Question answer cannot exceed 5000 characters']
   },
   category: {
-    type: String,
-    required: [true, 'Question category is required'],
-    trim: true,
-    enum: {
-      values: ['JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript', 'React', 'Vue', 'Angular', 'Node.js', 'Database', 'DevOps', 'System Design', 'Algorithms', 'Data Structures', 'Other'],
-      message: 'Please select a valid category'
-    }
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: [true, 'Question category is required']
   },
   level: {
     type: String,

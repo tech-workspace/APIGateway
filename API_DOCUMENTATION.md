@@ -20,6 +20,15 @@
 | `GET` | `/v1/questions/stats` | ✅ Yes | Get question statistics |
 | `GET` | `/v1/questions/categories` | ✅ Yes | Get available categories |
 | `GET` | `/v1/questions/levels` | ✅ Yes | Get available levels |
+| `POST` | `/v1/categories` | ✅ Yes | Create new category |
+| `GET` | `/v1/categories` | ✅ Yes | Get paginated categories with search & filters |
+| `GET` | `/v1/categories/:id` | ✅ Yes | Get category by ID |
+| `PUT` | `/v1/categories/:id` | ✅ Yes | Update category |
+| `DELETE` | `/v1/categories/:id` | ✅ Yes | Delete category |
+| `GET` | `/v1/categories/active` | ✅ Yes | Get active categories |
+| `GET` | `/v1/categories/with-counts` | ✅ Yes | Get categories with question counts |
+| `PATCH` | `/v1/categories/:id/toggle-status` | ✅ Yes | Toggle category active status |
+| `PUT` | `/v1/categories/sort-order` | ✅ Yes | Update category sort order |
 
 ### **🔑 Authentication Details:**
 - **Public Endpoints:** Health check, Signup, Login
@@ -917,6 +926,478 @@ Content-Type: application/json
   "level": "Intermediate"
 }
 ```
+
+---
+
+## 🏷️ Categories Management APIs
+
+### 🆕 **POST** `/v1/categories`
+**Description:** Create a new category
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Machine Learning",
+  "description": "Questions related to machine learning and AI",
+  "color": "#10B981",
+  "icon": "🤖",
+  "isActive": true,
+  "sortOrder": 5
+}
+```
+
+**Field Validation:**
+- `name`: Required, string, 2-50 characters, unique
+- `description`: Optional, string, max 200 characters
+- `color`: Optional, valid hex color code (e.g., #3B82F6)
+- `icon`: Optional, string, max 10 characters
+- `isActive`: Optional, boolean, default: true
+- `sortOrder`: Optional, integer, min 0, default: 0
+
+**Response (Success - 201):**
+```json
+{
+  "success": true,
+  "message": "Category created successfully",
+  "data": {
+    "_id": "65c1234567890abcdef12345",
+    "name": "Machine Learning",
+    "description": "Questions related to machine learning and AI",
+    "color": "#10B981",
+    "icon": "🤖",
+    "isActive": true,
+    "sortOrder": 5,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+---
+
+### 📖 **GET** `/v1/categories`
+**Description:** Get paginated categories with search, filtering, and sorting
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Query Parameters:**
+- `page` (optional): Page number, default: 1
+- `limit` (optional): Items per page, default: 10, max: 100
+- `search` (optional): Search term for name or description
+- `isActive` (optional): Filter by active status (true/false)
+- `sortBy` (optional): Sort field (name, sortOrder, createdAt, updatedAt, questionCount), default: sortOrder
+- `sortOrder` (optional): Sort order (asc, desc), default: asc
+
+**Request Examples:**
+```http
+GET /v1/categories
+GET /v1/categories?page=1&limit=20
+GET /v1/categories?search=machine
+GET /v1/categories?isActive=true&sortBy=name&sortOrder=asc
+GET /v1/categories?page=2&limit=5&search=ai&isActive=true&sortBy=questionCount&sortOrder=desc
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Categories retrieved successfully",
+  "data": {
+    "categories": [
+      {
+        "_id": "65c1234567890abcdef12345",
+        "name": "Machine Learning",
+        "description": "Questions related to machine learning and AI",
+        "color": "#10B981",
+        "icon": "🤖",
+        "isActive": true,
+        "sortOrder": 5,
+        "createdAt": "2024-01-15T10:30:00.000Z",
+        "updatedAt": "2024-01-15T10:30:00.000Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 3,
+      "totalCategories": 25,
+      "hasNextPage": true,
+      "hasPrevPage": false,
+      "limit": 10
+    }
+  }
+}
+```
+
+---
+
+### 🔍 **GET** `/v1/categories/:id`
+**Description:** Get a specific category by ID
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Request:**
+```http
+GET /v1/categories/65c1234567890abcdef12345
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Category retrieved successfully",
+  "data": {
+    "_id": "65c1234567890abcdef12345",
+    "name": "Machine Learning",
+    "description": "Questions related to machine learning and AI",
+    "color": "#10B981",
+    "icon": "🤖",
+    "isActive": true,
+    "sortOrder": 5,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+---
+
+### ✏️ **PUT** `/v1/categories/:id`
+**Description:** Update an existing category
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+```
+
+**Request Body (all fields optional):**
+```json
+{
+  "name": "Updated Category Name",
+  "description": "Updated description",
+  "color": "#EF4444",
+  "icon": "🚀",
+  "isActive": false,
+  "sortOrder": 10
+}
+```
+
+**Request:**
+```http
+PUT /v1/categories/65c1234567890abcdef12345
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Category updated successfully",
+  "data": {
+    "_id": "65c1234567890abcdef12345",
+    "name": "Updated Category Name",
+    "description": "Updated description",
+    "color": "#EF4444",
+    "icon": "🚀",
+    "isActive": false,
+    "sortOrder": 10,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:35:00.000Z"
+  }
+}
+```
+
+---
+
+### 🗑️ **DELETE** `/v1/categories/:id`
+**Description:** Delete a category (only if no questions are associated)
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Request:**
+```http
+DELETE /v1/categories/65c1234567890abcdef12345
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Category deleted successfully",
+  "data": {
+    "id": "65c1234567890abcdef12345"
+  }
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "success": false,
+  "message": "Cannot delete category. It has 15 question(s) associated with it."
+}
+```
+
+---
+
+### ✅ **GET** `/v1/categories/active`
+**Description:** Get all active categories (for dropdowns, forms, etc.)
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Request:**
+```http
+GET /v1/categories/active
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Active categories retrieved successfully",
+  "data": [
+    {
+      "name": "JavaScript",
+      "description": "JavaScript programming questions",
+      "color": "#F7DF1E",
+      "icon": "⚡"
+    },
+    {
+      "name": "Machine Learning",
+      "description": "Questions related to machine learning and AI",
+      "color": "#10B981",
+      "icon": "🤖"
+    }
+  ]
+}
+```
+
+---
+
+### 📊 **GET** `/v1/categories/with-counts`
+**Description:** Get categories with question counts for analytics
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Request:**
+```http
+GET /v1/categories/with-counts
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Categories with question counts retrieved successfully",
+  "data": [
+    {
+      "_id": "65c1234567890abcdef12345",
+      "name": "JavaScript",
+      "description": "JavaScript programming questions",
+      "color": "#F7DF1E",
+      "icon": "⚡",
+      "isActive": true,
+      "sortOrder": 1,
+      "questionCount": 45,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "_id": "65c1234567890abcdef12346",
+      "name": "Machine Learning",
+      "description": "Questions related to machine learning and AI",
+      "color": "#10B981",
+      "icon": "🤖",
+      "isActive": true,
+      "sortOrder": 5,
+      "questionCount": 23,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### 🔄 **PATCH** `/v1/categories/:id/toggle-status`
+**Description:** Toggle category active/inactive status
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+**Request:**
+```http
+PATCH /v1/categories/65c1234567890abcdef12345/toggle-status
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Category deactivated successfully",
+  "data": {
+    "_id": "65c1234567890abcdef12345",
+    "name": "Machine Learning",
+    "description": "Questions related to machine learning and AI",
+    "color": "#10B981",
+    "icon": "🤖",
+    "isActive": false,
+    "sortOrder": 5,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:40:00.000Z"
+  }
+}
+```
+
+---
+
+### 📋 **PUT** `/v1/categories/sort-order`
+**Description:** Bulk update category sort order
+
+**Authentication:** Required (JWT Token)
+
+**Request Headers:**
+```http
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "categories": [
+    { "id": "65c1234567890abcdef12345", "sortOrder": 1 },
+    { "id": "65c1234567890abcdef12346", "sortOrder": 2 },
+    { "id": "65c1234567890abcdef12347", "sortOrder": 3 }
+  ]
+}
+```
+
+**Request:**
+```http
+PUT /v1/categories/sort-order
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Category sort order updated successfully"
+}
+```
+
+---
+
+## 🔧 **Testing Categories API with Postman**
+
+### **Step 1: Get Authentication Token**
+First, login to get your JWT token using the auth endpoints.
+
+### **Step 2: Create a Category**
+```http
+POST {{base_url}}/v1/categories
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "name": "Machine Learning",
+  "description": "Questions related to machine learning and AI",
+  "color": "#10B981",
+  "icon": "🤖",
+  "isActive": true,
+  "sortOrder": 5
+}
+```
+
+### **Step 3: Get All Categories**
+```http
+GET {{base_url}}/v1/categories?page=1&limit=10
+Authorization: Bearer {{auth_token}}
+```
+
+### **Step 4: Get Active Categories**
+```http
+GET {{base_url}}/v1/categories/active
+Authorization: Bearer {{auth_token}}
+```
+
+### **Step 5: Update a Category**
+```http
+PUT {{base_url}}/v1/categories/{{category_id}}
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "color": "#EF4444",
+  "icon": "🚀"
+}
+```
+
+### **Step 6: Toggle Category Status**
+```http
+PATCH {{base_url}}/v1/categories/{{category_id}}/toggle-status
+Authorization: Bearer {{auth_token}}
+```
+
+---
+
+## 🔄 **Updated Question Creation**
+
+Now that categories are dynamic, when creating questions, you need to provide a valid category ID:
+
+```http
+POST {{base_url}}/v1/questions
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "title": "What is the difference between let, const, and var in JavaScript?",
+  "answer": "In JavaScript, let, const, and var are different ways to declare variables...",
+  "category": "65c1234567890abcdef12345",
+  "level": "Beginner"
+}
+```
+
+**Note:** The `category` field now expects a MongoDB ObjectId instead of a string.
 
 ---
 
