@@ -541,7 +541,7 @@ Content-Type: application/json
 - `title`: Required, string, 10-500 characters
 - `answer`: Required, string, 20-5000 characters
 - `category`: Required, must be one of the predefined categories
-- `level`: Required, must be one of: Beginner, Intermediate, Advanced, Expert
+- `level`: Required, string (any value, no restrictions)
 
 **Available Categories:**
 JavaScript, Python, Java, C++, C#, PHP, Ruby, Go, Rust, Swift, Kotlin, TypeScript, React, Vue, Angular, Node.js, Database, DevOps, System Design, Algorithms, Data Structures, Other

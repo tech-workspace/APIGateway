@@ -23,10 +23,7 @@ const questionSchema = new mongoose.Schema({
   level: {
     type: String,
     required: [true, 'Question level is required'],
-    enum: {
-      values: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
-      message: 'Please select a valid level'
-    }
+    trim: true
   }
 }, {
   timestamps: true,

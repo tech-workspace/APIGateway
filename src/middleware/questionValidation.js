@@ -26,10 +26,8 @@ const createQuestionSchema = Joi.object({
       'any.required': 'Question category is required'
     }),
   level: Joi.string()
-    .valid('Beginner', 'Intermediate', 'Advanced', 'Expert')
     .required()
     .messages({
-      'any.only': 'Please select a valid level',
       'any.required': 'Question level is required'
     })
 });
@@ -58,10 +56,9 @@ const updateQuestionSchema = Joi.object({
       'any.optional': 'Category is optional for updates'
     }),
   level: Joi.string()
-    .valid('Beginner', 'Intermediate', 'Advanced', 'Expert')
     .optional()
     .messages({
-      'any.only': 'Please select a valid level'
+      'any.optional': 'Level is optional for updates'
     })
 });
 
@@ -101,10 +98,9 @@ const questionQuerySchema = Joi.object({
       'any.optional': 'Category filter is optional'
     }),
   level: Joi.string()
-    .valid('Beginner', 'Intermediate', 'Advanced', 'Expert')
     .optional()
     .messages({
-      'any.only': 'Please select a valid level'
+      'any.optional': 'Level filter is optional'
     }),
   sortBy: Joi.string()
     .valid('title', 'category', 'level', 'createdAt', 'updatedAt')
