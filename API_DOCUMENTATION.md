@@ -538,8 +538,8 @@ Content-Type: application/json
 ```
 
 **Field Validation:**
-- `title`: Required, string, 10-500 characters
-- `answer`: Required, string, 20-5000 characters
+- `title`: Required, string, 1-500 characters
+- `answer`: Required, string, 1-5000 characters
 - `category`: Required, must be one of the predefined categories
 - `level`: Required, string (any value, no restrictions)
 

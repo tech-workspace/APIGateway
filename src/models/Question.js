@@ -5,14 +5,14 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Question title is required'],
     trim: true,
-    minlength: [10, 'Question title must be at least 10 characters long'],
+    minlength: [1, 'Question title must be at least 1 character long'],
     maxlength: [500, 'Question title cannot exceed 500 characters']
   },
   answer: {
     type: String,
     required: [true, 'Question answer is required'],
     trim: true,
-    minlength: [20, 'Question answer must be at least 20 characters long'],
+    minlength: [1, 'Question answer must be at least 1 character long'],
     maxlength: [5000, 'Question answer cannot exceed 5000 characters']
   },
   category: {

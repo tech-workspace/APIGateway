@@ -3,20 +3,20 @@ const Joi = require('joi');
 // Validation schema for creating a new question
 const createQuestionSchema = Joi.object({
   title: Joi.string()
-    .min(10)
+    .min(1)
     .max(500)
     .required()
     .messages({
-      'string.min': 'Question title must be at least 10 characters long',
+      'string.min': 'Question title must be at least 1 character long',
       'string.max': 'Question title cannot exceed 500 characters',
       'any.required': 'Question title is required'
     }),
   answer: Joi.string()
-    .min(20)
+    .min(1)
     .max(5000)
     .required()
     .messages({
-      'string.min': 'Question answer must be at least 20 characters long',
+      'string.min': 'Question answer must be at least 1 character long',
       'string.max': 'Question answer cannot exceed 5000 characters',
       'any.required': 'Question answer is required'
     }),
@@ -35,19 +35,19 @@ const createQuestionSchema = Joi.object({
 // Validation schema for updating a question
 const updateQuestionSchema = Joi.object({
   title: Joi.string()
-    .min(10)
+    .min(1)
     .max(500)
     .optional()
     .messages({
-      'string.min': 'Question title must be at least 10 characters long',
+      'string.min': 'Question title must be at least 1 character long',
       'string.max': 'Question title cannot exceed 500 characters'
     }),
   answer: Joi.string()
-    .min(20)
+    .min(1)
     .max(5000)
     .optional()
     .messages({
-      'string.min': 'Question answer must be at least 20 characters long',
+      'string.min': 'Question answer must be at least 1 character long',
       'string.max': 'Question answer cannot exceed 5000 characters'
     }),
   category: Joi.string()
