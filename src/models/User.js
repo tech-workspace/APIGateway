@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false // Don't include password in queries by default
   },
+  roleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Role',
+    required: false // Optional field
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -37,6 +42,7 @@ const userSchema = new mongoose.Schema({
 
 // Index for better query performance
 userSchema.index({ mobile: 1 });
+userSchema.index({ roleId: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Pre-save middleware to hash password
@@ -87,6 +93,16 @@ userSchema.statics.findByMobile = function(mobile) {
 userSchema.statics.mobileExists = async function(mobile) {
   const user = await this.findOne({ mobile }).select('_id');
   return !!user;
+};
+
+// Static method to find users by role
+userSchema.statics.findByRole = function(roleId) {
+  return this.find({ roleId }).select('-password');
+};
+
+// Static method to get users with role information
+userSchema.statics.getUsersWithRoles = function() {
+  return this.find().populate('roleId', 'roleConst').select('-password');
 };
 
 const User = mongoose.model('User', userSchema);

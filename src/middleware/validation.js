@@ -41,6 +41,99 @@ const schemas = {
       .messages({
         'any.required': 'Password is required'
       })
+  }),
+
+  updateProfile: Joi.object({
+    fullName: Joi.string()
+      .min(2)
+      .max(100)
+      .messages({
+        'string.min': 'Full name must be at least 2 characters long',
+        'string.max': 'Full name cannot exceed 100 characters'
+      }),
+    mobile: Joi.string()
+      .pattern(/^[0-9]{10,15}$/)
+      .messages({
+        'string.pattern.base': 'Please enter a valid mobile number'
+      }),
+    password: Joi.string()
+      .min(6)
+      .messages({
+        'string.min': 'Password must be at least 6 characters long'
+      }),
+    roleId: Joi.string()
+      .pattern(/^[0-9a-fA-F]{24}$/)
+      .allow(null)
+      .messages({
+        'string.pattern.base': 'Invalid role ID format'
+      })
+  }),
+
+  createUser: Joi.object({
+    fullName: Joi.string()
+      .min(2)
+      .max(100)
+      .required()
+      .messages({
+        'string.min': 'Full name must be at least 2 characters long',
+        'string.max': 'Full name cannot exceed 100 characters',
+        'any.required': 'Full name is required'
+      }),
+    mobile: Joi.string()
+      .pattern(/^[0-9]{10,15}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'Please enter a valid mobile number',
+        'any.required': 'Mobile number is required'
+      }),
+    password: Joi.string()
+      .min(6)
+      .required()
+      .messages({
+        'string.min': 'Password must be at least 6 characters long',
+        'any.required': 'Password is required'
+      }),
+    roleId: Joi.string()
+      .pattern(/^[0-9a-fA-F]{24}$/)
+      .allow(null)
+      .messages({
+        'string.pattern.base': 'Invalid role ID format'
+      })
+  }),
+
+  updateUser: Joi.object({
+    fullName: Joi.string()
+      .min(2)
+      .max(100)
+      .messages({
+        'string.min': 'Full name must be at least 2 characters long',
+        'string.max': 'Full name cannot exceed 100 characters'
+      }),
+    mobile: Joi.string()
+      .pattern(/^[0-9]{10,15}$/)
+      .messages({
+        'string.pattern.base': 'Please enter a valid mobile number'
+      }),
+    password: Joi.string()
+      .min(6)
+      .messages({
+        'string.min': 'Password must be at least 6 characters long'
+      }),
+    roleId: Joi.string()
+      .pattern(/^[0-9a-fA-F]{24}$/)
+      .allow(null)
+      .messages({
+        'string.pattern.base': 'Invalid role ID format'
+      })
+  }),
+
+  userQuery: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(10),
+    search: Joi.string().trim().max(100),
+    roleId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
+    sortBy: Joi.string().valid('fullName', 'mobile', 'createdAt', 'updatedAt').default('createdAt'),
+    sortOrder: Joi.string().valid('asc', 'desc').default('desc')
   })
 };
 
@@ -83,5 +176,9 @@ const validate = (schemaName) => {
 module.exports = {
   validateSignup: validate('signup'),
   validateLogin: validate('login'),
+  validateUpdateProfile: validate('updateProfile'),
+  validateCreateUser: validate('createUser'),
+  validateUpdateUser: validate('updateUser'),
+  validateUserQuery: validate('userQuery'),
   schemas
 };

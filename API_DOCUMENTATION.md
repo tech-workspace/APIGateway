@@ -9,7 +9,12 @@
 | `POST` | `/v1/auth/login` | ❌ No | Authenticate user & get JWT token |
 | `GET` | `/v1/auth/profile` | ✅ Yes | Get current user's profile |
 | `PUT` | `/v1/auth/profile` | ✅ Yes | Update current user's profile |
-| `GET` | `/v1/auth/users` | ✅ Yes | Get paginated users list with search |
+| `GET` | `/v1/auth/users` | ✅ Yes | Get paginated users list with search & role filter |
+| `POST` | `/v1/auth/users` | ✅ Yes | Create new user (admin) |
+| `GET` | `/v1/auth/users/:id` | ✅ Yes | Get user by ID |
+| `PUT` | `/v1/auth/users/:id` | ✅ Yes | Update user by ID (admin) |
+| `DELETE` | `/v1/auth/users/:id` | ✅ Yes | Delete user by ID (admin) |
+| `GET` | `/v1/auth/users/role/:roleId` | ✅ Yes | Get users by role |
 | `POST` | `/v1/questions` | ✅ Yes | Create new question |
 | `GET` | `/v1/questions` | ✅ Yes | Get paginated questions with search & filters |
 | `GET` | `/v1/questions/:id` | ✅ Yes | Get question by ID |
@@ -29,6 +34,14 @@
 | `GET` | `/v1/categories/with-counts` | ✅ Yes | Get categories with question counts |
 | `PATCH` | `/v1/categories/:id/toggle-status` | ✅ Yes | Toggle category active status |
 | `PUT` | `/v1/categories/sort-order` | ✅ Yes | Update category sort order |
+| `POST` | `/v1/roles` | ✅ Yes | Create new role |
+| `GET` | `/v1/roles` | ✅ Yes | Get paginated roles with search & filters |
+| `GET` | `/v1/roles/:id` | ✅ Yes | Get role by ID |
+| `PUT` | `/v1/roles/:id` | ✅ Yes | Update role |
+| `DELETE` | `/v1/roles/:id` | ✅ Yes | Delete role |
+| `GET` | `/v1/roles/with-counts` | ✅ Yes | Get roles with user counts |
+| `GET` | `/v1/roles/const/:roleConst` | ✅ Yes | Get role by constant |
+| `PUT` | `/v1/roles/bulk-update` | ✅ Yes | Bulk update roles |
 
 ### **🔑 Authentication Details:**
 - **Public Endpoints:** Health check, Signup, Login
@@ -53,11 +66,14 @@
   - [Health Check](#health-check)
   - [Authentication APIs](#authentication-apis)
   - [User Management APIs](#user-management-apis)
+  - [Questions Management APIs](#questions-management-apis)
+  - [Categories Management APIs](#categories-management-apis)
+  - [Roles Management APIs](#roles-management-apis)
 
 ---
 
 ## 🌟 Overview
-This API Gateway provides a comprehensive set of endpoints for user authentication, profile management, and user administration. Built with Node.js, Express, and MongoDB, it offers secure, scalable, and RESTful APIs.
+This API Gateway provides a comprehensive set of endpoints for user authentication, profile management, user administration, questions management, categories management, and roles management. Built with Node.js, Express, and MongoDB, it offers secure, scalable, and RESTful APIs.
 
 **Version:** v1  
 **Environment:** Production  
@@ -309,13 +325,17 @@ Content-Type: application/json
 ```json
 {
   "fullName": "John Smith",
-  "mobile": "0987654321"
+  "mobile": "0987654321",
+  "password": "newpassword123",
+  "roleId": "507f1f77bcf86cd799439011"
 }
 ```
 
 **Field Validation:**
-- `fullName`: Optional, string, 2-50 characters
+- `fullName`: Optional, string, 2-100 characters
 - `mobile`: Optional, string, 10-15 characters, unique
+- `password`: Optional, string, minimum 6 characters
+- `roleId`: Optional, string, valid MongoDB ObjectId (24 characters)
 
 **Response (Success - 200):**
 ```json
@@ -323,11 +343,17 @@ Content-Type: application/json
   "success": true,
   "message": "Profile updated successfully",
   "data": {
-    "_id": "65c1234567890abcdef12345",
-    "fullName": "John Smith",
-    "mobile": "0987654321",
-    "createdAt": "2024-01-15T10:30:00.000Z",
-    "updatedAt": "2024-01-15T10:35:00.000Z"
+    "user": {
+      "_id": "65c1234567890abcdef12345",
+      "fullName": "John Smith",
+      "mobile": "0987654321",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:45:00.000Z"
+    }
   }
 }
 ```
@@ -356,6 +382,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - `page` (optional): Page number, default: 1
 - `limit` (optional): Items per page, default: 10, max: 100
 - `search` (optional): Search term for fullName or mobile
+- `roleId` (optional): Filter users by role ID
+- `sortBy` (optional): Sort field - `fullName`, `mobile`, `createdAt`, `updatedAt` (default: `createdAt`)
+- `sortOrder` (optional): Sort order - `asc`, `desc` (default: `desc`)
 
 **Request Examples:**
 ```http
@@ -363,6 +392,8 @@ GET /v1/auth/users
 GET /v1/auth/users?page=1&limit=20
 GET /v1/auth/users?search=john
 GET /v1/auth/users?page=2&limit=5&search=123
+GET /v1/auth/users?roleId=507f1f77bcf86cd799439011
+GET /v1/auth/users?sortBy=fullName&sortOrder=asc
 ```
 
 **Response (Success - 200):**
@@ -376,6 +407,10 @@ GET /v1/auth/users?page=2&limit=5&search=123
         "_id": "65c1234567890abcdef12345",
         "fullName": "John Doe",
         "mobile": "1234567890",
+        "roleId": {
+          "_id": "507f1f77bcf86cd799439011",
+          "roleConst": "ADMIN"
+        },
         "createdAt": "2024-01-15T10:30:00.000Z",
         "updatedAt": "2024-01-15T10:30:00.000Z"
       },
@@ -383,6 +418,7 @@ GET /v1/auth/users?page=2&limit=5&search=123
         "_id": "65c1234567890abcdef12346",
         "fullName": "Jane Smith",
         "mobile": "0987654321",
+        "roleId": null,
         "createdAt": "2024-01-15T11:00:00.000Z",
         "updatedAt": "2024-01-15T11:00:00.000Z"
       }
@@ -403,6 +439,198 @@ GET /v1/auth/users?page=2&limit=5&search=123
 {
   "success": false,
   "message": "Access token is required"
+}
+```
+
+---
+
+#### 🆕 **POST** `/v1/auth/users`
+**Create a new user (admin function)**
+
+**Authentication:** Required (JWT Token)
+
+**Request Body:**
+```json
+{
+  "fullName": "New User",
+  "mobile": "9876543210",
+  "password": "password123",
+  "roleId": "507f1f77bcf86cd799439011"
+}
+```
+
+**Field Validation:**
+- `fullName`: Required, string, 2-100 characters
+- `mobile`: Required, string, 10-15 characters, unique
+- `password`: Required, string, minimum 6 characters
+- `roleId`: Optional, string, valid MongoDB ObjectId (24 characters)
+
+**Response (Success - 201):**
+```json
+{
+  "success": true,
+  "message": "User created successfully",
+  "data": {
+    "user": {
+      "_id": "65c1234567890abcdef12347",
+      "fullName": "New User",
+      "mobile": "9876543210",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
+      "createdAt": "2024-01-15T12:00:00.000Z",
+      "updatedAt": "2024-01-15T12:00:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+#### 🔍 **GET** `/v1/auth/users/:id`
+**Get user by ID**
+
+**Authentication:** Required (JWT Token)
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "User retrieved successfully",
+  "data": {
+    "user": {
+      "_id": "65c1234567890abcdef12345",
+      "fullName": "John Doe",
+      "mobile": "1234567890",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+#### ✏️ **PUT** `/v1/auth/users/:id`
+**Update user by ID (admin function)**
+
+**Authentication:** Required (JWT Token)
+
+**Request Body:**
+```json
+{
+  "fullName": "Updated Name",
+  "mobile": "1111111111",
+  "password": "newpassword123",
+  "roleId": "507f1f77bcf86cd799439012"
+}
+```
+
+**Field Validation:**
+- `fullName`: Optional, string, 2-100 characters
+- `mobile`: Optional, string, 10-15 characters, unique
+- `password`: Optional, string, minimum 6 characters
+- `roleId`: Optional, string, valid MongoDB ObjectId (24 characters)
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "user": {
+      "_id": "65c1234567890abcdef12345",
+      "fullName": "Updated Name",
+      "mobile": "1111111111",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439012",
+        "roleConst": "USER"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T12:30:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+#### 🗑️ **DELETE** `/v1/auth/users/:id`
+**Delete user by ID (admin function)**
+
+**Authentication:** Required (JWT Token)
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "User deleted successfully",
+  "data": {
+    "id": "65c1234567890abcdef12345"
+  }
+}
+```
+
+**Note:** Cannot delete your own account.
+
+---
+
+#### 👥 **GET** `/v1/auth/users/role/:roleId`
+**Get users by role**
+
+**Authentication:** Required (JWT Token)
+
+**Query Parameters:**
+- `page` (optional): Page number, default: 1
+- `limit` (optional): Items per page, default: 10, max: 100
+- `search` (optional): Search term for fullName or mobile
+- `sortBy` (optional): Sort field - `fullName`, `mobile`, `createdAt`, `updatedAt` (default: `createdAt`)
+- `sortOrder` (optional): Sort order - `asc`, `desc` (default: `desc`)
+
+**Request Examples:**
+```http
+GET /v1/auth/users/role/507f1f77bcf86cd799439011
+GET /v1/auth/users/role/507f1f77bcf86cd799439011?page=1&limit=20
+GET /v1/auth/users/role/507f1f77bcf86cd799439011?search=john
+```
+
+**Response (Success - 200):**
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully",
+  "data": {
+    "users": [
+      {
+        "_id": "65c1234567890abcdef12345",
+        "fullName": "John Doe",
+        "mobile": "1234567890",
+        "roleId": {
+          "_id": "507f1f77bcf86cd799439011",
+          "roleConst": "ADMIN"
+        },
+        "createdAt": "2024-01-15T10:30:00.000Z",
+        "updatedAt": "2024-01-15T10:30:00.000Z"
+      }
+    ],
+    "role": {
+      "_id": "507f1f77bcf86cd799439011",
+      "roleConst": "ADMIN"
+    },
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 1,
+      "totalUsers": 1,
+      "hasNextPage": false,
+      "hasPrevPage": false,
+      "limit": 10
+    }
+  }
 }
 ```
 
@@ -1375,6 +1603,269 @@ Content-Type: application/json
 ### **Step 6: Toggle Category Status**
 ```http
 PATCH {{base_url}}/v1/categories/{{category_id}}/toggle-status
+Authorization: Bearer {{auth_token}}
+```
+
+---
+
+## 👥 **Roles Management APIs**
+
+### 🆕 **POST** `/v1/roles`
+**Create a new role**
+
+**Request Body:**
+```json
+{
+  "roleConst": "ADMIN"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Role created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "roleConst": "ADMIN",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### 📋 **GET** `/v1/roles`
+**Get all roles with pagination, search, and filtering**
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 100)
+- `search` (optional): Search in roleConst
+- `sortBy` (optional): Sort field - `roleConst`, `createdAt`, `updatedAt` (default: `roleConst`)
+- `sortOrder` (optional): Sort order - `asc`, `desc` (default: `asc`)
+
+**Example Request:**
+```http
+GET /v1/roles?page=1&limit=10&search=ADMIN&sortBy=roleConst&sortOrder=asc
+Authorization: Bearer <your_jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Roles retrieved successfully",
+  "data": {
+    "roles": [
+      {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN",
+        "createdAt": "2024-01-15T10:30:00.000Z",
+        "updatedAt": "2024-01-15T10:30:00.000Z"
+      },
+      {
+        "_id": "507f1f77bcf86cd799439012",
+        "roleConst": "USER",
+        "createdAt": "2024-01-15T10:35:00.000Z",
+        "updatedAt": "2024-01-15T10:35:00.000Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 1,
+      "totalRoles": 2,
+      "hasNextPage": false,
+      "hasPrevPage": false,
+      "limit": 10
+    }
+  }
+}
+```
+
+### 🔍 **GET** `/v1/roles/:id`
+**Get a single role by ID**
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Role retrieved successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "roleConst": "ADMIN",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### ✏️ **PUT** `/v1/roles/:id`
+**Update a role**
+
+**Request Body:**
+```json
+{
+  "roleConst": "SUPER_ADMIN"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Role updated successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "roleConst": "SUPER_ADMIN",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:45:00.000Z"
+  }
+}
+```
+
+### 🗑️ **DELETE** `/v1/roles/:id`
+**Delete a role**
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Role deleted successfully",
+  "data": {
+    "id": "507f1f77bcf86cd799439011"
+  }
+}
+```
+
+**Note:** Cannot delete roles that have users associated with them.
+
+### 📊 **GET** `/v1/roles/with-counts`
+**Get roles with user counts**
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Roles with user counts retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "roleConst": "ADMIN",
+      "userCount": 5,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "roleConst": "USER",
+      "userCount": 25,
+      "createdAt": "2024-01-15T10:35:00.000Z",
+      "updatedAt": "2024-01-15T10:35:00.000Z"
+    }
+  ]
+}
+```
+
+### 🔍 **GET** `/v1/roles/const/:roleConst`
+**Get role by constant**
+
+**Example Request:**
+```http
+GET /v1/roles/const/ADMIN
+Authorization: Bearer <your_jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Role retrieved successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "roleConst": "ADMIN",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### 🔄 **PUT** `/v1/roles/bulk-update`
+**Bulk update roles**
+
+**Request Body:**
+```json
+{
+  "roles": [
+    {
+      "id": "507f1f77bcf86cd799439011",
+      "roleConst": "SUPER_ADMIN"
+    },
+    {
+      "id": "507f1f77bcf86cd799439012",
+      "roleConst": "MODERATOR"
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Roles updated successfully"
+}
+```
+
+### 🔧 **Testing Roles API with Postman**
+
+#### **Step 1: Get Authentication Token**
+```http
+POST {{base_url}}/v1/auth/login
+Content-Type: application/json
+
+{
+  "mobile": "1234567890",
+  "password": "your_password"
+}
+```
+
+#### **Step 2: Create a New Role**
+```http
+POST {{base_url}}/v1/roles
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "roleConst": "ADMIN"
+}
+```
+
+#### **Step 3: Get All Roles**
+```http
+GET {{base_url}}/v1/roles?page=1&limit=10
+Authorization: Bearer {{auth_token}}
+```
+
+#### **Step 4: Get Roles with User Counts**
+```http
+GET {{base_url}}/v1/roles/with-counts
+Authorization: Bearer {{auth_token}}
+```
+
+#### **Step 5: Update a Role**
+```http
+PUT {{base_url}}/v1/roles/{{role_id}}
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "roleConst": "SUPER_ADMIN"
+}
+```
+
+#### **Step 6: Delete a Role**
+```http
+DELETE {{base_url}}/v1/roles/{{role_id}}
 Authorization: Bearer {{auth_token}}
 ```
 
