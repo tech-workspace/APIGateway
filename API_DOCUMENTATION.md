@@ -180,14 +180,16 @@ Content-Type: application/json
 {
   "fullName": "John Doe",
   "mobile": "1234567890",
-  "password": "securePassword123"
+  "password": "securePassword123",
+  "roleId": "507f1f77bcf86cd799439011"
 }
 ```
 
 **Field Validation:**
-- `fullName`: Required, string, 2-50 characters
+- `fullName`: Required, string, 2-100 characters
 - `mobile`: Required, string, 10-15 characters, unique
-- `password`: Required, string, minimum 8 characters
+- `password`: Required, string, minimum 6 characters
+- `roleId`: Optional, string, valid MongoDB ObjectId (24 characters)
 
 **Response (Success - 201):**
 ```json
@@ -199,6 +201,10 @@ Content-Type: application/json
       "_id": "65c1234567890abcdef12345",
       "fullName": "John Doe",
       "mobile": "1234567890",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
       "createdAt": "2024-01-15T10:30:00.000Z",
       "updatedAt": "2024-01-15T10:30:00.000Z"
     },
@@ -250,6 +256,10 @@ Content-Type: application/json
       "_id": "65c1234567890abcdef12345",
       "fullName": "John Doe",
       "mobile": "1234567890",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
       "createdAt": "2024-01-15T10:30:00.000Z",
       "updatedAt": "2024-01-15T10:30:00.000Z"
     },
@@ -291,11 +301,17 @@ GET /v1/auth/profile
   "success": true,
   "message": "Profile retrieved successfully",
   "data": {
-    "_id": "65c1234567890abcdef12345",
-    "fullName": "John Doe",
-    "mobile": "1234567890",
-    "createdAt": "2024-01-15T10:30:00.000Z",
-    "updatedAt": "2024-01-15T10:30:00.000Z"
+    "user": {
+      "_id": "65c1234567890abcdef12345",
+      "fullName": "John Doe",
+      "mobile": "1234567890",
+      "roleId": {
+        "_id": "507f1f77bcf86cd799439011",
+        "roleConst": "ADMIN"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
   }
 }
 ```
@@ -687,7 +703,7 @@ Authorization: Bearer {{auth_token}}
 ### **Password Security**
 - Passwords are automatically hashed using bcrypt
 - Never store or log passwords in plain text
-- Minimum password length: 8 characters
+- Minimum password length: 6 characters
 
 ### **Token Management**
 - JWT tokens have an expiration time

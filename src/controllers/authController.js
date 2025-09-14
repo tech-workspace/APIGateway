@@ -46,13 +46,14 @@ const signup = async (req, res) => {
     // Generate JWT token
     const token = generateToken(user._id);
 
-    // Remove password from response
-    const userResponse = user.toObject();
-    delete userResponse.password;
+    // Get user with role information
+    const userWithRole = await User.findById(user._id)
+      .select('-password')
+      .populate('roleId', 'roleConst');
 
     res.status(201).json(
       createResponse(true, 'User created successfully', {
-        user: userResponse,
+        user: userWithRole,
         token
       })
     );
@@ -110,13 +111,14 @@ const login = async (req, res) => {
     // Generate JWT token
     const token = generateToken(user._id);
 
-    // Remove password from response
-    const userResponse = user.toObject();
-    delete userResponse.password;
+    // Get user with role information
+    const userWithRole = await User.findById(user._id)
+      .select('-password')
+      .populate('roleId', 'roleConst');
 
     res.status(200).json(
       createResponse(true, 'Login successful', {
-        user: userResponse,
+        user: userWithRole,
         token
       })
     );

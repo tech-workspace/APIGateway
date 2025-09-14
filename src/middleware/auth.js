@@ -25,8 +25,10 @@ const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Find user and attach to request
-    const user = await User.findById(decoded.userId).select('-password');
+    // Find user and attach to request with role information
+    const user = await User.findById(decoded.userId)
+      .select('-password')
+      .populate('roleId', 'roleConst');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -67,7 +69,9 @@ const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId).select('-password');
+      const user = await User.findById(decoded.userId)
+        .select('-password')
+        .populate('roleId', 'roleConst');
       if (user) {
         req.user = user;
       }
