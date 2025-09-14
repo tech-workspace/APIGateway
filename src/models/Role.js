@@ -28,20 +28,20 @@ roleSchema.index({ createdAt: -1 });
 
 // Virtual for formatted creation date
 roleSchema.virtual('formattedCreatedAt').get(function() {
-  return this.createdAt.toLocaleDateString('en-US', {
+  return this.createdAt ? this.createdAt.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  }) : null;
 });
 
 // Virtual for formatted updated date
 roleSchema.virtual('formattedUpdatedAt').get(function() {
-  return this.updatedAt.toLocaleDateString('en-US', {
+  return this.updatedAt ? this.updatedAt.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  }) : null;
 });
 
 // Static method to find role by constant
